@@ -1,8 +1,10 @@
-package br.com.pereiraeng.io.flow;
+package br.com.pereiraeng.io;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+
+import br.com.pereiraeng.core.Flow;
 
 /**
  * Classe abstrata do objeto que faz a leitura de um arquivo, repassando pela

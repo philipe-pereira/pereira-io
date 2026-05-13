@@ -389,9 +389,9 @@ public class IOutils {
 
 			StringBuilder out = new StringBuilder();
 
-			String s = null;
-			while ((s = raf.readLine()) != null)
-				out.append(s + "\n");
+			String str = null;
+			while ((str = raf.readLine()) != null)
+				out.append(str + "\n");
 
 			raf.close();
 
@@ -486,23 +486,61 @@ public class IOutils {
 	public static String readFile3(File file, String charsetName) {
 		try {
 			StringBuilder out = new StringBuilder();
-			BufferedReader br = null;
+			BufferedReader reader = null;
 			if (charsetName != null)
-				br = getBr(file, charsetName);
+				reader = getBr(file, charsetName);
 			else
-				br = getBr(file);
+				reader = getBr(file);
 
-			if (br != null) {
-				String s = null;
-				while ((s = br.readLine()) != null)
-					out.append(s + "\n");
-				br.close();
+			if (reader != null) {
+				readAllLines(out, reader);
+				reader.close();
 			}
 
 			return out.toString();
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
+		}
+	}
+
+	/**
+	 * Função que lê o conteúdo de um dado arquivo na pasta <code>resources</code>
+	 * 
+	 * @param path caminho do arquivo
+	 * @return sequência de caracteres com o conteúdo do arquivo
+	 */
+	public static String readFileFromResources(String path) {
+		return readFileFromUrl(ClassLoader.getSystemResource(path));
+	}
+
+	public static String readFileFromUrl(URL url) {
+		StringBuilder out = new StringBuilder();
+		readFileFromUrl(out, url);
+		return out.toString();
+	}
+
+	private static void readFileFromUrl(StringBuilder out, URL url) {
+		try {
+			InputStream stream = url.openStream();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+			readAllLines(out, reader);
+			reader.close();
+			stream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void readAllLines(StringBuilder out, BufferedReader reader) {
+		try {
+			String str = null;
+			while ((str = reader.readLine()) != null) {
+				out.append(str);
+				out.append("\n");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -756,17 +794,15 @@ public class IOutils {
 				wr.close();
 			}
 
-			BufferedReader in = null;
+			BufferedReader reader = null;
 			if (charsetName != null)
-				in = new BufferedReader(new InputStreamReader(siteConnection.getInputStream(), charsetName));
+				reader = new BufferedReader(new InputStreamReader(siteConnection.getInputStream(), charsetName));
 			else
-				in = new BufferedReader(new InputStreamReader(siteConnection.getInputStream()));
+				reader = new BufferedReader(new InputStreamReader(siteConnection.getInputStream()));
 
-			String line = null;
-			while ((line = in.readLine()) != null)
-				out.append(line + "\n");
+			readAllLines(out, reader);
 
-			in.close();
+			reader.close();
 		} catch (IOException | URISyntaxException e) {
 			System.err.println("Endereço inexistente: " + url);
 			return null;
@@ -922,19 +958,19 @@ public class IOutils {
 	 * @return arquivo que foi carregado da internet
 	 */
 	public static File download2(String url, String folderName, String filename) {
-		BufferedReader br = IOutils.getBr(url);
+		BufferedReader reader = IOutils.getBr(url);
 		File file = null;
-		if (br != null) {
+		if (reader != null) {
 			File folder = new File(folderName);
 			if (!folder.isDirectory())
 				folder.mkdir();
 			try {
 				file = new File(folderName + "/" + filename);
 				RandomAccessFile raf = new RandomAccessFile(file, "rw");
-				String s;
-				while ((s = br.readLine()) != null)
-					raf.writeBytes(s + "\n");
-				br.close();
+				String str;
+				while ((str = reader.readLine()) != null)
+					raf.writeBytes(str + "\n");
+				reader.close();
 				raf.close();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -952,13 +988,13 @@ public class IOutils {
 	 * @return <code>true</code> se deu certo o download, <code>false</code> se não
 	 */
 	public static boolean download2(String url, File file) {
-		BufferedReader br = IOutils.getBr(url);
-		String s;
+		BufferedReader reader = IOutils.getBr(url);
+		String str;
 		try {
 			RandomAccessFile raf = new RandomAccessFile(file, "rw");
-			while ((s = br.readLine()) != null)
-				raf.writeBytes(s + "\n");
-			br.close();
+			while ((str = reader.readLine()) != null)
+				raf.writeBytes(str + "\n");
+			reader.close();
 			raf.close();
 			return true;
 		} catch (IOException e) {
@@ -997,10 +1033,10 @@ public class IOutils {
 	public static String getExtension(File file) {
 		String out = null;
 		String filename = file.getName();
-		int p = filename.lastIndexOf('.');
+		int dotPosition = filename.lastIndexOf('.');
 
-		if (p > 0 && p < filename.length() - 1)
-			out = filename.substring(p + 1).toLowerCase();
+		if (dotPosition > 0 && dotPosition < filename.length() - 1)
+			out = filename.substring(dotPosition + 1).toLowerCase();
 
 		return out;
 	}
@@ -1015,11 +1051,11 @@ public class IOutils {
 	public static String[] getNameExtension(File file) {
 		String[] out = new String[2];
 		String filename = file.getName();
-		int p = filename.lastIndexOf('.');
+		int dotPosition = filename.lastIndexOf('.');
 
-		if (p > 0 && p < filename.length() - 1) {
-			out[0] = filename.substring(0, p);
-			out[1] = filename.substring(p + 1).toLowerCase();
+		if (dotPosition > 0 && dotPosition < filename.length() - 1) {
+			out[0] = filename.substring(0, dotPosition);
+			out[1] = filename.substring(dotPosition + 1).toLowerCase();
 		}
 
 		return out;
@@ -1055,8 +1091,8 @@ public class IOutils {
 	 * @return objeto {@link File} com o nome concatenado
 	 */
 	public static File appendFilename(File file, String append) {
-		String[] filenameExt = getNameExtension(file);
-		return new File(file.getParent() + File.separator + filenameExt[0] + append + "." + filenameExt[1]);
+		String[] filenameExtension = getNameExtension(file);
+		return new File(file.getParent() + File.separator + filenameExtension[0] + append + "." + filenameExtension[1]);
 	}
 
 	/**
@@ -1068,8 +1104,12 @@ public class IOutils {
 	 * @return objeto {@link File} com a nova extensão
 	 */
 	public static File replaceExtension(File file, String newExt) {
-		String s = file.getAbsolutePath();
-		return new File(s.substring(0, s.lastIndexOf('.') + 1) + newExt);
+		String absolutePath = file.getAbsolutePath();
+		int dotPosition = absolutePath.lastIndexOf('.');
+		if (dotPosition > 0)
+			return new File(absolutePath.substring(0, dotPosition + 1) + newExt);
+		else
+			return new File(absolutePath + "." + newExt);
 	}
 
 	/**
@@ -1081,8 +1121,12 @@ public class IOutils {
 	 *         extensão
 	 */
 	public static String removeExtension(File file) {
-		String s = file.getAbsolutePath();
-		return s.substring(0, s.lastIndexOf('.'));
+		String absolutePath = file.getAbsolutePath();
+		int dotPosition = absolutePath.lastIndexOf('.');
+		if (dotPosition > 0)
+			return absolutePath.substring(0, dotPosition);
+		else
+			return absolutePath;
 	}
 
 	/**
@@ -1092,18 +1136,22 @@ public class IOutils {
 	 * @return sequência de caracteres do nome do arquivo, sem a extensão
 	 */
 	public static String removeNameExtension(File file) {
-		String s = file.getName();
-		return s.substring(0, s.lastIndexOf('.'));
+		String filename = file.getName();
+		int dotPosition = filename.lastIndexOf('.');
+		if (dotPosition > 0)
+			return filename.substring(0, dotPosition);
+		else
+			return filename;
 	}
 
-	private static final char[] FORBIDDEN = { File.separatorChar, '/', ':', '*', '?', '"', '<', '>', '|' };
+	private static final char[] FORBIDDEN_CHAR = { '\\', '/', ':', '*', '?', '"', '<', '>', '|' };
 
-	public static final String PATTERN;
+	public static final String FORBIDDEN_CHAR_PATTERN;
 
 	static {
 		StringBuilder sb = new StringBuilder("[^");
-		for (int i = 0; i < FORBIDDEN.length; i++) {
-			char c = FORBIDDEN[i];
+		for (int i = 0; i < FORBIDDEN_CHAR.length; i++) {
+			char c = FORBIDDEN_CHAR[i];
 			switch (c) {
 			case '*':
 			case '?':
@@ -1113,7 +1161,7 @@ public class IOutils {
 			sb.append(c);
 		}
 		sb.append("]");
-		PATTERN = sb.toString();
+		FORBIDDEN_CHAR_PATTERN = sb.toString();
 	}
 
 	/**
@@ -1125,8 +1173,8 @@ public class IOutils {
 	 *         brancos
 	 */
 	public static String removeForbiddenCharacters(String filename) {
-		for (int i = 0; i < FORBIDDEN.length; i++)
-			filename = filename.replace(FORBIDDEN[i], ' ');
+		for (int i = 0; i < FORBIDDEN_CHAR.length; i++)
+			filename = filename.replace(FORBIDDEN_CHAR[i], ' ');
 		return filename;
 	}
 
