@@ -37,7 +37,6 @@ import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
 import javax.imageio.ImageIO;
 
 import br.com.pereiraeng.html.HTML;
@@ -671,116 +670,85 @@ public class IOutils {
 	 * @return código-fonte da página
 	 */
 	public static String getSourcePage(String url) {
-		return getSourcePage(url, null);
-	}
-
-	/**
-	 * 
-	 * @param url         endereço URL da página
-	 * @param charsetName
-	 *                    <ul>
-	 *                    <li>Cp858</i>
-	 *                    <li>Cp437</i>
-	 *                    <li>Cp775</i>
-	 *                    <li>Cp850</i>
-	 *                    <li>Cp852</i>
-	 *                    <li>Cp855</i>
-	 *                    <li>Cp857</i>
-	 *                    <li>Cp862</i>
-	 *                    <li>Cp866</i>
-	 *                    <li>ISO8859_1</i>
-	 *                    <li>ISO8859_2</i>
-	 *                    <li>ISO8859_4</i>
-	 *                    <li>ISO8859_5</i>
-	 *                    <li>ISO8859_7</i>
-	 *                    <li>ISO8859_9</i>
-	 *                    <li>ISO8859_13</i>
-	 *                    <li>ISO8859_15</i>
-	 *                    <li>KOI8_R</i>
-	 *                    <li>KOI8_U</i>
-	 *                    <li>ASCII</i>
-	 *                    <li>UTF8</i>
-	 *                    <li>UTF-16</i>
-	 *                    <li>UnicodeBigUnmarked</i>
-	 *                    <li>UnicodeLittleUnmarked</i>
-	 *                    <li>UTF_32</i>
-	 *                    <li>UTF_32BE</i>
-	 *                    <li>UTF_32LE</i>
-	 *                    <li>UTF_32BE_BOM</i>
-	 *                    <li>UTF_32LE_BOM</i>
-	 *                    <li>Cp1250</i>
-	 *                    <li>Cp1251</i>
-	 *                    <li>Cp1252</i>
-	 *                    <li>Cp1253</i>
-	 *                    <li>Cp1254</i>
-	 *                    <li>Cp1257</i>
-	 *                    <li>UnicodeBig</i>
-	 *                    <li>Cp737</i>
-	 *                    <li>Cp874</i>
-	 *                    </ul>
-	 * @return código-fonte da página
-	 */
-	public static String getSourcePage(String url, String charsetName) {
-		return getSourcePage(url, charsetName, false);
+		return getSourcePage(url, true);
 	}
 
 	/**
 	 * Função que retorna o código-fonte de uma página referencia pelo seu endereço
 	 * URL
 	 * 
-	 * @param url         endereço URL da página
-	 * @param charsetName
-	 *                    <ul>
-	 *                    <li>Cp858</i>
-	 *                    <li>Cp437</i>
-	 *                    <li>Cp775</i>
-	 *                    <li>Cp850</i>
-	 *                    <li>Cp852</i>
-	 *                    <li>Cp855</i>
-	 *                    <li>Cp857</i>
-	 *                    <li>Cp862</i>
-	 *                    <li>Cp866</i>
-	 *                    <li>ISO8859_1</i>
-	 *                    <li>ISO8859_2</i>
-	 *                    <li>ISO8859_4</i>
-	 *                    <li>ISO8859_5</i>
-	 *                    <li>ISO8859_7</i>
-	 *                    <li>ISO8859_9</i>
-	 *                    <li>ISO8859_13</i>
-	 *                    <li>ISO8859_15</i>
-	 *                    <li>KOI8_R</i>
-	 *                    <li>KOI8_U</i>
-	 *                    <li>ASCII</i>
-	 *                    <li>UTF8</i>
-	 *                    <li>UTF-16</i>
-	 *                    <li>UnicodeBigUnmarked</i>
-	 *                    <li>UnicodeLittleUnmarked</i>
-	 *                    <li>UTF_32</i>
-	 *                    <li>UTF_32BE</i>
-	 *                    <li>UTF_32LE</i>
-	 *                    <li>UTF_32BE_BOM</i>
-	 *                    <li>UTF_32LE_BOM</i>
-	 *                    <li>Cp1250</i>
-	 *                    <li>Cp1251</i>
-	 *                    <li>Cp1252</i>
-	 *                    <li>Cp1253</i>
-	 *                    <li>Cp1254</i>
-	 *                    <li>Cp1257</i>
-	 *                    <li>UnicodeBig</i>
-	 *                    <li>Cp737</i>
-	 *                    <li>Cp874</i>
-	 *                    </ul>
-	 * @param webBrowser
+	 * @param url                 endereço URL da página
+	 * @param configureConnection se <code>true</code> configura-se a conexão
+	 *                            incluindo-se um conjunto de headers HTTP mais
+	 *                            próximo de um navegador, para driblar bloqueios de
+	 *                            servidores
 	 * @return código-fonte da página
 	 */
-	public static String getSourcePage(String url, String charsetName, boolean webBrowser, String[]... params) {
+	public static String getSourcePage(String url, boolean configureConnection) {
+		return getSourcePage(url, configureConnection, null);
+	}
+
+	/**
+	 * Função que retorna o código-fonte de uma página referencia pelo seu endereço
+	 * URL
+	 * 
+	 * @param url                 endereço URL da página
+	 * @param configureConnection se <code>true</code> configura-se a conexão
+	 *                            incluindo-se um conjunto de headers HTTP mais
+	 *                            próximo de um navegador, para driblar bloqueios de
+	 *                            servidores
+	 * @param charsetName
+	 *                            <ul>
+	 *                            <li>Cp858</i>
+	 *                            <li>Cp437</i>
+	 *                            <li>Cp775</i>
+	 *                            <li>Cp850</i>
+	 *                            <li>Cp852</i>
+	 *                            <li>Cp855</i>
+	 *                            <li>Cp857</i>
+	 *                            <li>Cp862</i>
+	 *                            <li>Cp866</i>
+	 *                            <li>ISO8859_1</i>
+	 *                            <li>ISO8859_2</i>
+	 *                            <li>ISO8859_4</i>
+	 *                            <li>ISO8859_5</i>
+	 *                            <li>ISO8859_7</i>
+	 *                            <li>ISO8859_9</i>
+	 *                            <li>ISO8859_13</i>
+	 *                            <li>ISO8859_15</i>
+	 *                            <li>KOI8_R</i>
+	 *                            <li>KOI8_U</i>
+	 *                            <li>ASCII</i>
+	 *                            <li>UTF8</i>
+	 *                            <li>UTF-16</i>
+	 *                            <li>UnicodeBigUnmarked</i>
+	 *                            <li>UnicodeLittleUnmarked</i>
+	 *                            <li>UTF_32</i>
+	 *                            <li>UTF_32BE</i>
+	 *                            <li>UTF_32LE</i>
+	 *                            <li>UTF_32BE_BOM</i>
+	 *                            <li>UTF_32LE_BOM</i>
+	 *                            <li>Cp1250</i>
+	 *                            <li>Cp1251</i>
+	 *                            <li>Cp1252</i>
+	 *                            <li>Cp1253</i>
+	 *                            <li>Cp1254</i>
+	 *                            <li>Cp1257</i>
+	 *                            <li>UnicodeBig</i>
+	 *                            <li>Cp737</i>
+	 *                            <li>Cp874</i>
+	 *                            </ul>
+	 * @return código-fonte da página
+	 */
+	public static String getSourcePage(String url, boolean configureConnection, String charsetName,
+			String[]... params) {
 		StringBuilder out = new StringBuilder();
 		try {
 			URL site = new URI(url).toURL();
 			URLConnection siteConnection = site.openConnection();
 
-			if (webBrowser)
-				siteConnection.setRequestProperty("User-Agent", "Mozilla");
+			if (configureConnection)
+				configureHttpConnection(siteConnection);
 
 			if (params.length > 0) {
 				siteConnection.setDoOutput(true);
@@ -811,6 +779,19 @@ public class IOutils {
 		return out.toString();
 	}
 
+	private static void configureHttpConnection(URLConnection connection) {
+		connection.setConnectTimeout(15000);
+		connection.setReadTimeout(30000);
+
+		connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+				+ "AppleWebKit/537.36 (KHTML, like Gecko) " + "Chrome/124.0.0.0 Safari/537.36");
+
+		connection.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+
+		connection.setRequestProperty("Accept-Language", "pt-BR,pt;q=0.9,en;q=0.8");
+		connection.setRequestProperty("Connection", "close");
+	}
+
 	/**
 	 * Função que retorna o título de uma página da WEB
 	 * 
@@ -821,9 +802,9 @@ public class IOutils {
 		String source = getSourcePage(url);
 
 		if (source != null) {
-			Matcher m = HTML.getGroupPattern("title").matcher(source);
-			if (m.find()) {
-				String out = m.group();
+			Matcher matcher = HTML.getGroupPattern("title").matcher(source);
+			if (matcher.find()) {
+				String out = matcher.group();
 				return out.substring(7, out.length() - 8).trim().replace("\n", "");
 			}
 		}
@@ -844,14 +825,14 @@ public class IOutils {
 
 		try {
 			while ((str = reader.readLine()) != null) {
-				Matcher m = HTML.PATTERN_LINK.matcher(str);
-				while (m.find()) {
-					str = m.group();
+				Matcher matcher1 = HTML.PATTERN_LINK.matcher(str);
+				while (matcher1.find()) {
+					str = matcher1.group();
 
-					Matcher m2 = HTML.PATTERN_CONTENT.matcher(str);
+					Matcher matcher2 = HTML.PATTERN_CONTENT.matcher(str);
 
-					if (m2.find()) {
-						str = m2.group();
+					if (matcher2.find()) {
+						str = matcher2.group();
 						str = str.substring(1, str.length() - 1);
 
 						boolean dir = str.endsWith("/");
@@ -897,14 +878,14 @@ public class IOutils {
 		try {
 			file = new File(folderName + "/" + filename);
 			RandomAccessFile raf = new RandomAccessFile(file, "rw");
-			byte s;
+			byte b;
 			while (true) {
 				try {
-					s = dis.readByte();
+					b = dis.readByte();
 				} catch (EOFException e) {
 					break;
 				}
-				raf.writeByte(s);
+				raf.writeByte(b);
 			}
 			dis.close();
 			raf.close();

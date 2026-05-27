@@ -1,5 +1,7 @@
 # Maven
 /target/
+pereira-io/target/
+pereira-io-java11/target/
 dependency-reduced-pom.xml
 
 # Eclipse

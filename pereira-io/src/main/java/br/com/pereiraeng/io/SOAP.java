@@ -1,4 +1,4 @@
-package br.com.pereiraeng.io.soap;
+package br.com.pereiraeng.io;
 
 import java.io.DataOutputStream;
 import java.io.IOException;

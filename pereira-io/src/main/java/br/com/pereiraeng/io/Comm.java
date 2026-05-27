@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import br.com.pereiraeng.io.spi.IoExtensions;
+
 public class Comm {
 
 	public static final int NO_ACCESS = 0;
@@ -123,16 +125,14 @@ public class Comm {
 			System.out.printf("Tentando se conectar ao servidor do %s... ", srcName);
 			ok = IOutils.pingHTML((String) params[1]);
 			break;
-		case SSL: // conexão SSL TODO solução auto-incremental
+		case SSL: // conexão SSL
 		case SQL: // base de dados SQL
-//			System.out.printf(type == DataSourceType.SSL ? "Solicitando resposta SSL-%s... "
-//					: "Checando conexão com a base de dados %s... ", srcName);
-//			ok = SSLutils.ping((String) params[1]);
-//
-//			SQLadapter sql = (SQLadapter) params[1];
-//			ok = sql != null
-//					? (sql.getStatus() > 0 ? (params.length == 3 ? sql.exist((String) params[2]) : true) : false)
-//					: false;
+		case XML: // arquivo XML
+			System.out.printf(type == DataSourceType.SSL ? "Solicitando resposta SSL-%s... "
+					: (type == DataSourceType.XML ? "Solicitando resposta XML-%s... "
+							: "Checando conexão com a base de dados %s... "),
+					srcName);
+			ok = IoExtensions.pingExtensions(type, params);
 			break;
 		case NET:
 			System.out.printf("Tentando se conectar ao servidor do %s... ", srcName);
@@ -147,10 +147,6 @@ public class Comm {
 			System.out.printf("Tentando acessar o arquivo %s do %s... ", rede ? "da rede" : "local", srcName);
 			file = new File((String) params[1]);
 			ok = file.isFile();
-			break;
-		case XML: // arquivo XML
-			System.out.printf("Solicitando resposta XML-%s... ", srcName);
-//			ok = IOutils.pingXML((String) params[1], false);
 			break;
 		}
 
