@@ -5,13 +5,13 @@
 
 	<groupId>br.com.pereiraeng</groupId>
 	<artifactId>pereira-io-parent</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 	<packaging>pom</packaging>
 
-    <modules>
-        <module>pereira-io</module>
-        <module>pereira-io-java11</module>
-    </modules>
+	<modules>
+		<module>pereira-io</module>
+		<module>pereira-io-java11</module>
+	</modules>
 
 	<distributionManagement>
 		<repository>

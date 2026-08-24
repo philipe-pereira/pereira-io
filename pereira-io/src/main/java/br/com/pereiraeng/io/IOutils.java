@@ -130,19 +130,19 @@ public class IOutils {
 		}
 	}
 
-	public static BufferedReader getBr(String url) {
-		InputStream is = getIs(url);
-		if (is != null)
-			return new BufferedReader(new InputStreamReader(is));
+	public static BufferedReader getBufferedReaderFromUrl(String url) {
+		InputStream inputStream = getInputStream(url);
+		if (inputStream != null)
+			return new BufferedReader(new InputStreamReader(inputStream));
 		else
 			return null;
 	}
 
-	public static BufferedReader getBrF(String file) {
-		return getBr(new File(file));
+	public static BufferedReader getBufferedReaderFromFilepath(String filepath) {
+		return getBufferedReader(new File(filepath));
 	}
 
-	public static BufferedReader getBr(File file) {
+	public static BufferedReader getBufferedReader(File file) {
 		try {
 			return new BufferedReader(new FileReader(file));
 		} catch (FileNotFoundException e) {
@@ -197,7 +197,7 @@ public class IOutils {
 	 *                    </ul>
 	 * @return
 	 */
-	public static BufferedReader getBr(File file, String charsetName) {
+	public static BufferedReader getBufferedReader(File file, String charsetName) {
 		try {
 			return new BufferedReader(new InputStreamReader(new FileInputStream(file), charsetName));
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
@@ -213,7 +213,7 @@ public class IOutils {
 	 * @return
 	 */
 	public static BufferedReader getBrUTF8(File file) {
-		return getBr(file, "UTF8");
+		return getBufferedReader(file, "UTF8");
 	}
 
 	public static BufferedInputStream getBis(File file) {
@@ -228,7 +228,7 @@ public class IOutils {
 	// DATA INPUT STREAM
 
 	public static DataInputStream getDis(String url) {
-		InputStream is = getIs(url);
+		InputStream is = getInputStream(url);
 		if (is == null)
 			return null;
 		return new DataInputStream(is);
@@ -236,7 +236,7 @@ public class IOutils {
 
 	// INPUT STREAM
 
-	private static InputStream getIs(String url) {
+	private static InputStream getInputStream(String url) {
 		if (url == null)
 			return null;
 		try {
@@ -487,9 +487,9 @@ public class IOutils {
 			StringBuilder out = new StringBuilder();
 			BufferedReader reader = null;
 			if (charsetName != null)
-				reader = getBr(file, charsetName);
+				reader = getBufferedReader(file, charsetName);
 			else
-				reader = getBr(file);
+				reader = getBufferedReader(file);
 
 			if (reader != null) {
 				readAllLines(out, reader);
@@ -503,15 +503,7 @@ public class IOutils {
 		}
 	}
 
-	/**
-	 * Função que lê o conteúdo de um dado arquivo na pasta <code>resources</code>
-	 * 
-	 * @param path caminho do arquivo
-	 * @return sequência de caracteres com o conteúdo do arquivo
-	 */
-	public static String readFileFromResources(String path) {
-		return readFileFromUrl(ClassLoader.getSystemResource(path));
-	}
+	// from URL
 
 	public static String readFileFromUrl(URL url) {
 		StringBuilder out = new StringBuilder();
@@ -522,6 +514,31 @@ public class IOutils {
 	private static void readFileFromUrl(StringBuilder out, URL url) {
 		try {
 			InputStream stream = url.openStream();
+			readFileFromStream(out, stream);
+			stream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Função que lê o conteúdo de um dado arquivo na pasta <code>resources</code>
+	 * 
+	 * @param path caminho do arquivo
+	 * @return sequência de caracteres com o conteúdo do arquivo
+	 */
+	public static String readFileFromResources(String path) {
+		return readFileFromStream(ClassLoader.getSystemResourceAsStream(path));
+	}
+
+	private static String readFileFromStream(InputStream stream) {
+		StringBuilder out = new StringBuilder();
+		readFileFromStream(out, stream);
+		return out.toString();
+	}
+
+	private static void readFileFromStream(StringBuilder out, InputStream stream) {
+		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 			readAllLines(out, reader);
 			reader.close();
@@ -538,6 +555,7 @@ public class IOutils {
 				out.append(str);
 				out.append("\n");
 			}
+			out.setLength(out.length() - 1);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -819,10 +837,9 @@ public class IOutils {
 	 * @param folder pasta destino dos arquivos baixados
 	 */
 	public static void loadDirectory(String url, String folder) {
-		BufferedReader reader = getBr(url);
+		BufferedReader reader = getBufferedReaderFromUrl(url);
 
 		String str = null;
-
 		try {
 			while ((str = reader.readLine()) != null) {
 				Matcher matcher1 = HTML.PATTERN_LINK.matcher(str);
@@ -939,7 +956,7 @@ public class IOutils {
 	 * @return arquivo que foi carregado da internet
 	 */
 	public static File download2(String url, String folderName, String filename) {
-		BufferedReader reader = IOutils.getBr(url);
+		BufferedReader reader = IOutils.getBufferedReaderFromUrl(url);
 		File file = null;
 		if (reader != null) {
 			File folder = new File(folderName);
@@ -969,7 +986,7 @@ public class IOutils {
 	 * @return <code>true</code> se deu certo o download, <code>false</code> se não
 	 */
 	public static boolean download2(String url, File file) {
-		BufferedReader reader = IOutils.getBr(url);
+		BufferedReader reader = IOutils.getBufferedReaderFromUrl(url);
 		String str;
 		try {
 			RandomAccessFile raf = new RandomAccessFile(file, "rw");
@@ -1200,7 +1217,7 @@ public class IOutils {
 
 	public static boolean decompressGzipFile(String url, File file) {
 		try {
-			return decompressGzipFile(getIs(url), new FileOutputStream(file));
+			return decompressGzipFile(getInputStream(url), new FileOutputStream(file));
 		} catch (FileNotFoundException e) {
 			System.err.println("O arquivo " + url + " não foi encontrado.");
 		}
